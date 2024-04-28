@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.patil.software.solutions.entity.Order;
+import com.patil.software.solutions.external.client.PaymentService;
 import com.patil.software.solutions.external.client.ProductService;
+import com.patil.software.solutions.external.client.request.PaymentRequest;
 import com.patil.software.solutions.model.OrderRequest;
 import com.patil.software.solutions.repository.OrderRepository;
 
@@ -18,9 +20,12 @@ public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private OrderRepository orderRepository;
-	
+
 	@Autowired
 	private ProductService productSrvice;
+
+	@Autowired
+	private PaymentService paymentService;
 
 	@Override
 	public long placeOrder(OrderRequest orderRequest) {
@@ -34,6 +39,21 @@ public class OrderServiceImpl implements OrderService {
 
 		order = orderRepository.save(order);
 		log.info("Order Placed Successfully with Order ID: {}", order.getId());
+
+		log.info("Calling Payment Service to complete the payment");
+		PaymentRequest paymentRequest = PaymentRequest.builder().amount(orderRequest.getTotalAmount())
+				.paymentMode(orderRequest.getPaymentMode()).orderId(order.getId()).build();
+		String orderStatus = null;
+		try {
+			paymentService.doPayment(paymentRequest);
+			log.info("Payment Successfully Complted");
+			orderStatus = "Success";
+		} catch (Exception e) {
+			log.info("Payment Failed");
+			orderStatus = "PAYMENT_FAILED";
+		}
+		order.setOrderStatus(orderStatus);
+		orderRepository.save(order);
 		return order.getId();
 	}
 
