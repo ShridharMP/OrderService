@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import com.patil.software.solutions.entity.Order;
 import com.patil.software.solutions.external.client.PaymentService;
 import com.patil.software.solutions.external.client.ProductService;
+import com.patil.software.solutions.external.client.exception.CustomException;
 import com.patil.software.solutions.external.client.request.PaymentRequest;
 import com.patil.software.solutions.model.OrderRequest;
+import com.patil.software.solutions.model.OrderResponse;
 import com.patil.software.solutions.repository.OrderRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -55,6 +57,20 @@ public class OrderServiceImpl implements OrderService {
 		order.setOrderStatus(orderStatus);
 		orderRepository.save(order);
 		return order.getId();
+	}
+
+	@Override
+	public OrderResponse getOrderDetails(long orderId) {
+		 Order order=orderRepository.findById(orderId)
+				 .orElseThrow(()->new CustomException("Order not found for the given id:"+orderId, "NOT_FOUND",404));
+		 OrderResponse orderResponse=OrderResponse
+				 					  .builder()
+				 					  .orderId(order.getId())
+				 					  .amount(order.getAmount())
+				 					  .orderStatus(order.getOrderStatus())
+				 					  .orderDate(order.getOrderDate())
+				 					 .build();
+		 return orderResponse;
 	}
 
 }
