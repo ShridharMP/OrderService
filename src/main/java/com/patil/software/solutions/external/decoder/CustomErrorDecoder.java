@@ -8,7 +8,6 @@ import com.patil.software.solutions.external.response.ErrorResponse;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2

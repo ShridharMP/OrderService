@@ -9,11 +9,15 @@ spring:
    jpa:
         database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
-            ddl-auto: update           
+            ddl-auto: update
+            format_sql: true
+        show-sql: true           
    application:
       name: ORDER-SERVICE
    config:
       import: optional:configserver:http://localhost:9296
+   main:
+     allow-bean-definition-overriding: true
 management:
    tracing:
       sampling:

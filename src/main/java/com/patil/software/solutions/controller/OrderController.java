@@ -1,7 +1,6 @@
 package com.patil.software.solutions.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +33,10 @@ public class OrderController {
 	@GetMapping("/{orderId}")
 	public ResponseEntity<OrderResponse> getOrderDetails(@PathVariable(name = "orderId") long orderId) {
 		OrderResponse orderResponse = orderService.getOrderDetails(orderId);
+		log.info("OrderResponse Details-> Amount:" + orderResponse.getAmount() + "OrderId:" + orderResponse.getOrderId()
+				+ "OrderStatus:" + orderResponse.getOrderStatus() + "OrderDate:" + orderResponse.getOrderDate()
+				+ "PaymentDetails:" + orderResponse.getPaymentDetails() + "ProductDetails:"
+				+ orderResponse.getProductDetails());
 		return new ResponseEntity<>(orderResponse, HttpStatus.OK);
 
 	}
