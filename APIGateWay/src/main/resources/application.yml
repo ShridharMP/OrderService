@@ -1,0 +1,59 @@
+server:
+   port: 9091
+spring:
+   application:
+      name: API-GATEWAY
+   config:
+      import: optional:configserver:http://localhost:9296
+   cloud:
+      gateway:
+         routes: 
+            - id: ORDER-SERVICE
+              uri: lb://ORDER-SERVICE
+              predicates:
+                  - Path=/order/**
+              filters:
+              - name: CircuitBreaker
+                args: 
+                   name: ORDER-SERVICE
+                   fallbackUri: forward:/orderServiceFallBack
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 3
+                  redis-rate-limiter.burstCapacity: 3
+                  redis-rate-limiter.requestedTokens: 1 
+            - id: PAYMENT-SERVICE
+              uri: lb://PAYMENT-SERVICE
+              predicates:
+                  - Path=/payment/**
+              filters:
+              - name: CircuitBreaker
+                args: 
+                   name: PAYMENT-SERVICE
+                   fallbackUri: forward:/paymentServiceFallBack
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 3
+                  redis-rate-limiter.burstCapacity: 3
+                  redis-rate-limiter.requestedTokens: 1
+            - id: PRODUCT-SERVICE
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                  - Path=/product/**
+              filters:
+              - name: CircuitBreaker
+                args: 
+                   name: PRODUCT-SERVICE
+                   fallbackUri: forward:/productServiceFallBack  
+              - name: RequestRateLimiter
+                args:
+                  redis-rate-limiter.replenishRate: 3
+                  redis-rate-limiter.burstCapacity: 3
+                  redis-rate-limiter.requestedTokens: 1                                       
+   main:
+     allow-bean-definition-overriding: true
+     web-application-type: reactive
+management:
+   tracing:
+      sampling:
+         probability: 1
